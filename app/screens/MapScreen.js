@@ -48,9 +48,7 @@ useEffect(()=>{
                     latitudeDelta:  location ? 0.01:4,
                     longitudeDelta: location ? 0.01:4
                 }}
-                
-                
-        
+
         >
             <Marker
             pinColor = {colors.secondary}
@@ -76,8 +74,9 @@ useEffect(()=>{
                         longitudeDelta: 0.001,
                         latitudeDelta: 0.001
                     }}
-                    title = {marker.data.name}
-                    onPress = {()=>{postCheckIn(marker.data.name, marker.data.addressLocation), goToFeed()}}
+                    title = {"Click here at to Check In at "+marker.data.name}
+                    onCalloutPress = {()=>{postCheckIn(marker.data.name, marker.data.addressLocation), goToFeed()}}
+                     
                     >
                         
                     </Marker>

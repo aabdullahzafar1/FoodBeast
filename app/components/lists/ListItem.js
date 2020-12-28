@@ -11,10 +11,12 @@ import Swipeable from "react-native-gesture-handler/Swipeable";
 import {MaterialCommunityIcons} from "@expo/vector-icons"
 
 import colors from "../../config/colors";
+import { Rating } from "react-native-ratings";
 
 
 function ListItem({
   title,
+  avgRating,
   subTitle,
   image,
   IconComponent,
@@ -43,9 +45,15 @@ function ListItem({
           {chevron && <MaterialCommunityIcons color={colors.medium} name = "chevron-right" size= {25}></MaterialCommunityIcons>}
           {settingIcon && <MaterialCommunityIcons onPress={onSettingPress} color={colors.primary} name = "lead-pencil" size= {25}></MaterialCommunityIcons>}
           {badge &&
-          <View style={{backgroundColor: colors.primary, alignItems: "center", }}>
-            <AppText style={{color:colors.white}}>5</AppText>
-          <MaterialCommunityIcons color={colors.light} name = "cart-outline" size= {25}></MaterialCommunityIcons>
+          <View style={{backgroundColor: colors.light, alignItems: "center", padding: 10, borderRadius: 50, borderColor: colors.primary, borderWidth: 2}}>
+            <AppText style={{color:colors.black}}>Rated {Math.round((avgRating + Number.EPSILON) * 100) / 100} </AppText>
+            <Rating
+            startingValue = {Math.round((avgRating + Number.EPSILON) * 100) / 100}
+            fractions = {1}
+            imageSize ={20}
+            readonly ={true}
+            tintColor = {colors.light}
+            />
           </View>
           }
           

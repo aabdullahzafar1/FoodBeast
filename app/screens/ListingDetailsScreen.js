@@ -36,6 +36,7 @@ const handleReviewSubmit = (values, rating) =>{
 
 let totalBill = 0
 let order = []
+let avg = 0
 let dbadding
 
 const channelName = "hamzaahmed2403"
@@ -62,6 +63,7 @@ function ListingDetailsScreen({route}) {
   const authContext = useContext(AuthContext)
   const listing = route.params
   const [loading,isLoading]=useState(false)
+  const [rAvg,setRAvg]=useState(0)
 
   const [badge,setBadge] = useState(0)
   const [reviewModal, setReviewModal] = useState(false);
@@ -82,8 +84,20 @@ function ListingDetailsScreen({route}) {
   async function loadReviewData() {
     const postRef = await firebase.firestore().collection("reviews").where("resId","==",listing.id).orderBy('time','desc').get()
     setReviewData(postRef.docs.map((doc)=>({id: doc.id, data: doc.data()})))
+    setRAvg(0)
+    if(postRef.size){
+    let t= 0
+    let n = 0
+    postRef.forEach(doc => {
+      t=t+doc.data().rating
+      n=n+1
+    })
+    avg = t/n
+    setRAvg(avg)
+  }
     
   }
+  
   async function loadMenuData() {
 
     const postRef = await firebase.firestore().collection("menuItems").where("resId","==",listing.id).get()
@@ -163,6 +177,7 @@ function ListingDetailsScreen({route}) {
     dbadding.total = total
     dbadding.username= authContext.userDetails.name
     dbadding.restaurant= listing.id
+    dbadding.restaurantName= listing.data.name
     dbadding.user = authContext.userDetails.docId
     dbadding.address= authContext.userDetails.address
     dbadding.number = authContext.userDetails.contact
@@ -199,7 +214,7 @@ function ListingDetailsScreen({route}) {
    scrollEnabled = {false}
    allowsInlineMediaPlayback = {true}
    style ={{width: "100%", }}
-   domStorageEnabled={true} source={{html: initialHTMLContent,baseUrl: 'https://fcc3ddae59ed.us-west-2.playback.live-video.net'}}></WebView>
+   domStorageEnabled={true} source={{html: listing.data.initalHtml,baseUrl: 'https://fcc3ddae59ed.us-west-2.playback.live-video.net'}}></WebView>
    <View style={{alignItems: "center", padding: 20, backgroundColor: colors.light, borderRadius: 25, width: "90%", alignSelf: "center", margin: 5}}>
    <AppText style={{color: colors.primary, fontWeight: "bold", fontStyle: "italic"}}>Note: The Normal Delay of the stream may be anywhere from 5 to upto 20 seconds</AppText>
    </View>
@@ -217,7 +232,8 @@ function ListingDetailsScreen({route}) {
           <ListItem 
             image={listing.data.image}
             title={listing.data.name}
-            badge={false}
+            avgRating = {rAvg}
+            badge={true}
           ></ListItem>
         </View>
     </View > 

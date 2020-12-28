@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { FlatList, Image, StyleSheet, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { LogBox } from 'react-native';
+
 import * as firebase from "firebase"
 import 'firebase/firestore';
 
@@ -13,6 +15,7 @@ import AppTextInput from "../components/AppTextInput";
 
 
 function ListingsScreen({navigation}) {
+  LogBox.ignoreAllLogs()
   const [listings, setListings] = useState();
   const [searchText, setSearchText] = useState("");
   const authContext = useContext(AuthContext);
@@ -30,11 +33,13 @@ function ListingsScreen({navigation}) {
   async function loaddata() {
     isLoading(true)
     setListings(null)
+    
     const postRef = await firebase.firestore().collection("users").where("isRestaurant","==",true).get()
     setListings(postRef.docs.map((doc)=>({id: doc.id, data: doc.data()})))
     let data =[]
     
-    if(searchText!==null || searchText!==""){
+    if(searchText!==null && searchText!==""){
+      console.log("Searching")
     postRef.forEach(doc => {
           if(String(doc.data().name).toLowerCase().startsWith(String(searchText).toLowerCase())){
             data.push({id: doc.id, data: doc.data()})

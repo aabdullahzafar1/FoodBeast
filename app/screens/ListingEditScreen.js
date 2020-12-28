@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Modal, StyleSheet } from "react-native";
+import { Image, Modal, StyleSheet } from "react-native";
 import * as Yup from "yup";
 import * as Location from 'expo-location'
 import * as firebase from "firebase"
@@ -66,7 +66,7 @@ function ListingEditScreen({navigation}) {
     // We're done with the blob, close and release it
     blob.close();
     let imageref= await snapshot.ref.getDownloadURL();
-    let databasevalues = {...values, images: imageref, time: firebase.firestore.FieldValue.serverTimestamp()}
+    let databasevalues = {...values, images: imageref, time: firebase.firestore.FieldValue.serverTimestamp(), likes: []}
 
     handleSubmit(databasevalues)
     setUploading(false)
@@ -86,11 +86,9 @@ function ListingEditScreen({navigation}) {
   return (
     <Screen style={styles.container}>
       <Modal visible={uploading}>
-            <LottieView
-            autoPlay
-            loop
-            source={require("../assets/images/upload.json")}
-            />
+      {
+              uploading && <Image style = {styles.loading} source={require('../assets/upload.gif')}  />
+            }
       </Modal>
       <Form
         initialValues={{
@@ -125,6 +123,11 @@ function ListingEditScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
+  },
+  loading: {
+    height: 300,
+    width : 300,
+    alignSelf: "center"
   },
 });
 export default ListingEditScreen;

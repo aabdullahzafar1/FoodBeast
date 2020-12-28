@@ -7,6 +7,10 @@ import addMenuItem from '../screens/addMenuItem';
 import editMenu from '../screens/editMenu';
 import EditMenuNavigator from './EditMenuNavigator';
 import UpdateAccountScreen from '../screens/UpdateAccountScreen';
+import myFoodbuddies from '../screens/myFoodbuddies';
+import BuddyNavigator from './BuddyNavigator';
+import Analytics from '../screens/Analytics';
+import MessageNavigator from './MessageNavigaotr';
 
 
 const Stack = createStackNavigator();
@@ -18,7 +22,9 @@ const AccountNavigator = () => (
         <Stack.Screen name = "Add Menu Item" component={addMenuItem}/>
         <Stack.Screen name = "Edit Menu" component={EditMenuNavigator}/>
         <Stack.Screen name = "Update Account" component={UpdateAccountScreen}/>
-        <Stack.Screen name = "Messages" component={MessagesScreen}/>
+        <Stack.Screen name = "Foodbuddy" component={BuddyNavigator}/>
+        <Stack.Screen name = "Message" component={MessageNavigator}/>
+        <Stack.Screen name = "Analytics" component={Analytics}/>
     </Stack.Navigator>
 )
 

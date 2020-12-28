@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
+import { Image, Modal, StyleSheet } from "react-native";
 import * as Yup from "yup";
 import * as Location from 'expo-location'
 import * as firebase from "firebase"
@@ -24,11 +24,13 @@ const validationSchema = Yup.object().shape({
 
 
 
-function addMenuItem() {
+function addMenuItem({navigation}) {
   const [imageUri,setImageUri]=useState()
   const authContext = useContext(AuthContext)
 
   async function uploadImageAsync(uri, values) {
+    setUploading(true)
+
     const blob = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.onload = function() {
@@ -56,9 +58,12 @@ function addMenuItem() {
     let databasevalues = {...values, images: imageref, time: firebase.firestore.FieldValue.serverTimestamp()}
 
     handleSubmit(databasevalues)
+    setUploading(false)
+
     return await snapshot.ref.getDownloadURL();
   }
 
+  const [uploading, setUploading]=useState(false)
 
   const handleSubmit = async (databasevalues) => {
 
@@ -67,11 +72,17 @@ function addMenuItem() {
       databasevalues.resId = authContext.userDetails.docId 
       // console.log(values.images, imageUri)
       firebase.firestore().collection('menuItems').add(databasevalues)
+      navigation.goBack()
 
   }
 
   return (
     <Screen style={styles.container}>
+             <Modal visible={uploading}>
+      {
+              uploading && <Image style = {styles.loading} source={require('../assets/upload.gif')}  />
+            }
+      </Modal>
       <Form
         initialValues={{
           title: "",
@@ -105,6 +116,11 @@ function addMenuItem() {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
+  },
+  loading: {
+    height: 300,
+    width : 300,
+    alignSelf: "center"
   },
 });
 export default addMenuItem;

@@ -38,6 +38,7 @@ function UserDetailScreen({route}) {
   
   useEffect(()=> {
       loaddata();
+      checkFriend();
   
   },[])
   
@@ -53,6 +54,48 @@ function UserDetailScreen({route}) {
     }
   }
 
+  async function addFriend() {
+    const postRef = firebase.firestore().collection('users').doc(authContext.userDetails.docId)
+    if(await checkFriend()){
+      console.log("UnLiking")
+      setFriend(false)
+      await postRef.update({
+        foodbuddies: firebase.firestore.FieldValue.arrayRemove(item.data.userDocId)
+      })
+    }
+    else{
+      console.log("Liking")
+      setFriend(true)
+      await postRef.update({
+        foodbuddies: firebase.firestore.FieldValue.arrayUnion(item.data.userDocId)
+      })
+    }
+    
+  }
+  
+  const checkFriend = async() =>{
+    const postRef = await firebase.firestore().collection('users').doc(authContext.userDetails.docId).get()
+    if('foodbuddies' in postRef.data() === false) {
+      setFriend(false)
+      return false
+    }
+    let array = []
+    array = Array.from(postRef.data().foodbuddies)
+  
+    
+    console.log(array)
+    if(array.includes(item.data.userDocId)){
+      console.log('True')
+      setFriend(true)
+      return true
+    }
+    else{
+      setFriend(false)
+      return false
+    }
+  
+  }
+
     return (
         <Screen style = {{backgroundColor: colors.light}}>
           {userProfile!==null && <ListItem
@@ -62,8 +105,7 @@ function UserDetailScreen({route}) {
             style = {{backgroundColor: colors.light, flexDirection: "row"}}
             imageStyle ={{borderColor: colors.primary,borderWidth: 5, height: 100, width: 100, borderRadius: 75}}
           ></ListItem>}
-          {!friend && <MaterialCommunityIcons style = {{position: "absolute", top: 15, right: 30}} size= {25} color ={colors.primary} onPress={() => setFriend(true)}  name = "account-plus-outline"></MaterialCommunityIcons>}
-          {friend && <MaterialCommunityIcons style = {{position: "absolute", top: 15, right: 30}} size= {25} color ={colors.secondary} onPress={() => setFriend(false)}  name = "account-check-outline"></MaterialCommunityIcons>}
+          {(item.data.userDocId === authContext.userDetails.docId) === false &&<MaterialCommunityIcons style = {{position: "absolute", top: 15, right: 30}} size= {25} color ={friend? colors.secondary:colors.primary} onPress={() => addFriend(true)}  name = {friend?"account-check-outline" :"account-plus-outline"}></MaterialCommunityIcons>}
           <View style={styles.separator} />
            <FlatList
         data={listings}
@@ -77,11 +119,13 @@ function UserDetailScreen({route}) {
             isImage = {checkImage(item.data.type)}
             isCheckIn = {item.data.isCheckIn}
             location = {item.data.addressLocation}
-            isFeedPost            
+            isFeedPost   
+            postId= {item.id}
+            onLikePress = {handleLike}
+            like = {like}
             title={item.data.name}
             subTitle={item.data.description}
             image={item.data.images}
-            onPress = {()=> navigation.navigate("Profile", item.data)}
           /></>
         )}
       />

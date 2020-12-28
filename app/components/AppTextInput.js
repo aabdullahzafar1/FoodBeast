@@ -17,7 +17,7 @@ function AppTextInput({ icon, ct=false, width = "100%", otherStyle, ...otherProp
       )}
       <TextInput
         placeholderTextColor={defaultStyles.colors.medium}
-        style={defaultStyles.text}
+        style={defaultStyles.inputText}
         clearTextOnFocus={ct}
         {...otherProps}
         

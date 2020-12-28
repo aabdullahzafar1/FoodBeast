@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { FlatList, StyleSheet, View, TouchableHighlight } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { FlatList, StyleSheet, View, TouchableHighlight, Modal } from "react-native";
 import {MaterialCommunityIcons} from '@expo/vector-icons'
 
 import Screen from "../components/Screen";
@@ -10,6 +10,8 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import * as firebase from "firebase"
 import 'firebase/firestore';
 import ActivityIndicator from "../components/ActivityIndicator";
+import AuthContext from "../Auth/context";
+import AppText from "../components/AppText";
 
 
 
@@ -21,6 +23,7 @@ import ActivityIndicator from "../components/ActivityIndicator";
 function FeedScreen({navigation}) {
   const [refreshing, setRefreshing] = useState(false);
   const [loading,isLoading]=useState(false)
+  const authContext = useContext(AuthContext)
   
 
 
@@ -28,7 +31,6 @@ function FeedScreen({navigation}) {
     isLoading(true)
     const postRef = await firebase.firestore().collection("posts").orderBy("time", "desc").get()
     setListings(postRef.docs.map((doc)=>({id: doc.id, data: doc.data()})))
-
     isLoading(false)
   }
 
@@ -44,9 +46,13 @@ function FeedScreen({navigation}) {
         <TouchableOpacity onPress={() => navigation.navigate("New Post")}  style={{marginHorizontal: 3, backgroundColor: colors.primary, borderRadius: 50, padding: 4}}>
           <MaterialCommunityIcons name = "plus" size={45} color={colors.white}></MaterialCommunityIcons>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("CheckIn")}  style={{backgroundColor: colors.primary, borderRadius: 50, padding: 4}}>
+        {authContext.userDetails.isRestaurant === false && <TouchableOpacity onPress={() => navigation.navigate("CheckIn")}  style={{backgroundColor: colors.primary, borderRadius: 50, padding: 4}}>
           <MaterialCommunityIcons name = "map-marker-plus" size={45} color={colors.white}></MaterialCommunityIcons>
-        </TouchableOpacity>
+        </TouchableOpacity>}
+        {/* <TouchableOpacity onPress={() => setSearchModal(true)}  style={{marginHorizontal: 3, backgroundColor: colors.primary, borderRadius: 50, padding: 4, flexDirection: "row", alignItems: "center", paddingHorizontal: 15}}>
+          <MaterialCommunityIcons name = "search-web" size={45} color={colors.white}></MaterialCommunityIcons>
+          <AppText style={{color: colors.white}}>Search Users</AppText>
+        </TouchableOpacity> */}
       </View>
       <FlatList
         data={listings}
@@ -62,7 +68,8 @@ function FeedScreen({navigation}) {
             isImage = {checkImage(item.data.type)}
             isCheckIn = {item.data.isCheckIn}
             location = {item.data.addressLocation}
-            isFeedPost            
+            isFeedPost  
+            postId= {item.id}          
             title={item.data.name}
             subTitle={item.data.description}
             image={item.data.images}
@@ -70,6 +77,7 @@ function FeedScreen({navigation}) {
           />
         )}
       />
+      
     </Screen>
   );
 

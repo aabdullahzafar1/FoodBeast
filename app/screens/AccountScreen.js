@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { StyleSheet, View, FlatList, Modal } from "react-native";
+import { StyleSheet, View, FlatList, Modal, TouchableOpacity, Platform } from "react-native";
 
 import Screen from "../components/Screen";
 import { ListItem, ListItemSeparator } from "../components/lists";
@@ -11,8 +11,12 @@ import * as firebase from "firebase"
 import 'firebase/firestore';
 import authStorage from '../Auth/storage'
 import AuthContext from "../Auth/context";
+import WebView from "react-native-webview";
+import AppText from "../components/AppText";
 
-
+let source = Platform.OS === 'ios'
+          ? require('../assets/game.html')
+          : {uri: '../assets/game.html'};
 const menuItems = [
 
   {
@@ -31,6 +35,14 @@ const menuItems = [
     },
     targetScreen: "Edit Menu"
   },
+  {
+    title: "Sales",
+    icon: {
+      name: "email",
+      backgroundColor: colors.secondary,
+    },
+    targetScreen: "Analytics"
+  },
 ];
 const userItems = [
   {
@@ -41,21 +53,30 @@ const userItems = [
     },
     targetScreen: "Orders"
   },
+  {
+    title: "My FoodBuddies",
+    icon: {
+      name: "food-fork-drink",
+      backgroundColor: colors.primary,
+    },
+    targetScreen: "Foodbuddy"
+  },
  
- /* {
+  {
     title: "My Messages",
     icon: {
       name: "email",
       backgroundColor: colors.secondary,
     },
-    targetScreen: "Messages"
-  },*/
+    targetScreen: "Message"
+  },
 
 ];
 
 function AccountScreen({navigation}) {
   const [modalVisible, setModalVisible]=useState(false)
   const authContext = useContext(AuthContext)
+  const [gameModal,setGameModal] = useState(false)
   return (
     <Screen style={styles.screen}>
       <View style={styles.container}>
@@ -65,6 +86,7 @@ function AccountScreen({navigation}) {
           image={authContext.userDetails.image}
           settingIcon
           onSettingPress={()=>navigation.navigate("Update Account")}
+          
 
         />
       </View>
@@ -104,11 +126,36 @@ function AccountScreen({navigation}) {
           )}
         />
       </View>
+
+      {Platform.OS === 'ios' && <ListItem
+        title="Play Game"
+        IconComponent={<Icon name="logout" backgroundColor="#ffe66d" />}
+        onPress={()=> {setGameModal(true)}}
+      />}
       <ListItem
         title="Log Out"
         IconComponent={<Icon name="logout" backgroundColor="#ffe66d" />}
         onPress={()=> {authStorage.removeToken();firebase.auth().signOut();authContext.setUserDetails(null)}}
       />
+          <Modal visible = {gameModal} animationType="slide">
+            <Screen style={{backgroundColor: colors.black}}>
+              <WebView
+                originWhitelist={['*']}
+                javaScriptEnabled={true}
+                scrollEnabled = {true}
+                style ={{width: "100%", }}
+                domStorageEnabled={true}
+                source={source}>
+                </WebView>
+
+   <TouchableOpacity 
+   style={{backgroundColor: colors.primary, borderRadius: 500, padding: 5,marginTop:55, marginLeft: 5, width: '50%', alignItems: "center", alignSelf: "center", marginBottom: 50}} 
+   onPress = {() =>{setGameModal(false)}}>
+
+                    <AppText style={{color: colors.white}}>Quit</AppText>
+
+        </TouchableOpacity>
+        </Screen></Modal>
      
     </Screen>
   );

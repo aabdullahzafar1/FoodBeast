@@ -131,7 +131,7 @@ function OrdersScreen({navigation}) {
                 keyExtractor={(message) => message.id.toString()}
                 renderItem={({ item }) => (
                     <ListItem
-                    title={item.data.username}
+                    title={authContext.userDetails.isRestaurant? item.data.username:item.data.restaurantName}
                     subTitle={item.data.address}
                     onPress={() => navigation.navigate("Order Details", item)}
 

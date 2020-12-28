@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
+import { Image, Modal, StyleSheet } from "react-native";
 import * as Yup from "yup";
 import * as Location from 'expo-location'
 import * as firebase from "firebase"
@@ -28,10 +28,12 @@ const validationSchema = Yup.object().shape({
 
 function UpdateAccountScreen({navigation}) {
   const [imageUri,setImageUri]=useState()
+  const [uploading, setUploading]=useState(false)
   const authContext = useContext(AuthContext)
   const [isEnabled, setIsEnabled] = useState(true)
 
   async function uploadImageAsync(uri, values) {
+    setUploading(true)
     const blob = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.onload = function() {
@@ -57,7 +59,7 @@ function UpdateAccountScreen({navigation}) {
     let imageref= await snapshot.ref.getDownloadURL();
     console.log(imageref)
     let databasevalues = {...values, images: imageref, time: firebase.firestore.FieldValue.serverTimestamp()}
-
+    setUploading(false)
     return await snapshot.ref.getDownloadURL();
   }
 
@@ -103,6 +105,11 @@ async function storeUser (email) {
 
   return (
     <Screen style={styles.container}>
+      <Modal visible={uploading}>
+      {
+              uploading && <Image style = {styles.loading} source={require('../assets/upload.gif')}  />
+            }
+      </Modal>
       <Form
         initialValues={{ image:[authContext.userDetails.image], name: authContext.userDetails.name, email: authContext.userDetails.email, address: isEnabled? authContext.userDetails.address : "", contact: authContext.userDetails.contact }}
         onSubmit={(values) => handleSubmit(values)}
@@ -156,6 +163,11 @@ async function storeUser (email) {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
+  },
+  loading: {
+    height: 300,
+    width : 300,
+    alignSelf: "center"
   },
 });
 export default UpdateAccountScreen;

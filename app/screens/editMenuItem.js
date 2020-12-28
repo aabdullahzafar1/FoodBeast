@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, StyleSheet } from "react-native";
+import { Image, Modal, StyleSheet } from "react-native";
 import * as Yup from "yup";
 import * as Location from 'expo-location'
 import * as firebase from "firebase"
@@ -76,6 +76,11 @@ function editMenuItem({route, navigation: {goBack}}) {
 
   return (
     <Screen style={styles.container}>
+       <Modal visible={uploading}>
+      {
+              uploading && <Image style = {styles.loading} source={require('../assets/upload.gif')}  />
+            }
+      </Modal>
       <Form
         initialValues={{
           title: item.data.title,
@@ -122,6 +127,11 @@ function editMenuItem({route, navigation: {goBack}}) {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
+  },
+  loading: {
+    height: 300,
+    width : 300,
+    alignSelf: "center"
   },
 });
 

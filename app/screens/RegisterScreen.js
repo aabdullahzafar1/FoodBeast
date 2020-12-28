@@ -29,7 +29,7 @@ const validationSchema = Yup.object().shape({
   contact: Yup.string().required().max(11, "Please Enter a valid Phone Number").min(11,"Please Enter a valid Phone Number").label("Contact")
 });
 
-function RegisterScreen() {
+function RegisterScreen({navigation}) {
   const [isEnabled,setIsEnabled] = useState(false)
   const [isEnabledAddress,setIsEnabledAddress] = useState(false)
   const [addressLocation,setAddressLocation] = useState(null)
@@ -77,6 +77,7 @@ function RegisterScreen() {
     const snapshot = await userRef.where('email', '==', values.email ).get()
     if (snapshot.empty) {
       firebase.firestore().collection('users').add(values)
+      navigation.goBack();
     }
     else {
       console.log("Already Registered")

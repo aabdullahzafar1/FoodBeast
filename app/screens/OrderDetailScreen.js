@@ -15,28 +15,59 @@ import AuthContext from '../Auth/context';
 
 
 function OrderDetailScreen({route, navigation}) {
+
+
     const items = route.params;
     const authContext = useContext(AuthContext)
+
+    async function sendPushNotification(nToken, title) {
+        const message = {
+          to: nToken,
+          sound: 'default',
+          title: title,
+          body: 'Click to Check in Orders',
+          data: { _displayInForeground : true, target: "Orders" },
+        };
+      
+        await fetch('https://exp.host/--/api/v2/push/send', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Accept-encoding': 'gzip, deflate',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(message),
+        });
+      }
 
     const acceptOrder = async () => {
         await firebase.firestore().collection('orders').doc(items.id).update({accepted: true})
         navigation.goBack();
+        const user = await firebase.firestore().collection('users').doc(items.data.user).get()
+        const token = user.data().nToken
+        sendPushNotification(token, "Order from "+items.data.restaurantName+" was Accepted")
     }
     const rejectOrder = async () => {
         await firebase.firestore().collection('orders').doc(items.id).delete();
         navigation.goBack();
+        const user = await firebase.firestore().collection('users').doc(items.data.user).get()
+        const token = user.data().nToken
+        sendPushNotification(token, "Order from "+items.data.restaurantName+" was Rejected")
     }
 
     const dispatchOrder = async () => {
         await firebase.firestore().collection('orders').doc(items.id).update({dispatched: true})
         navigation.goBack();
+        const user = await firebase.firestore().collection('users').doc(items.data.user).get()
+        const token = user.data().nToken
+        sendPushNotification(token, "Order from "+items.data.restaurantName+" is on its Way")
     }
 
     return (
 
         <Screen>
             <View style = {styles.container}>
-                <AppText style = {styles.titleheader}>{items.data.username}</AppText>
+                <AppText style = {styles.titleheader}>{authContext.userDetails.isRestaurant? items.data.username:items.data.restaurantName}</AppText>
                 <AppText>Contact Info: {items.data.number}</AppText>
                 <AppText>Address: {items.data.address}</AppText>
 
